@@ -5,7 +5,7 @@ public class CustomZoneSpawner : MonoBehaviour
 {
     public GameObject objectPrefab; // The prefab of the object to be spawned
     public int numberOfObjects = 5; // Number of objects to be spawned
-    public float radius = 5f; // Radius of the circle
+    private float radius = 3f; // Radius of the circle
 
     public List<float> degreeAngles; // List of degree angles provided by the user
 
@@ -44,25 +44,25 @@ public class CustomZoneSpawner : MonoBehaviour
         spawnedObjects.Add(spawnedObject);
     }
 
-    void OnDisable()
-    {
-        foreach (GameObject obj in spawnedObjects)
-        {
-            if (obj != null)
-            {
-                obj.SetActive(false); // Hide the object
-            }
-        }
-    }
+    //void OnDisable()
+    //{
+    //    foreach (GameObject obj in spawnedObjects)
+    //    {
+    //        if (obj != null)
+    //        {
+    //            obj.SetActive(false); // Hide the object
+    //        }
+    //    }
+    //}
 
-    void OnEnable()
-    {
-        foreach (GameObject obj in spawnedObjects)
-        {
-            if (obj != null)
-            {
-                obj.SetActive(true); // Unhide the object
-            }
-        }
-    }
+    //void OnEnable()
+    //{
+    //    foreach (GameObject obj in spawnedObjects)
+    //    {
+    //        if (obj != null)
+    //        {
+    //            obj.SetActive(true); // Unhide the object
+    //        }
+    //    }
+    //}
 }

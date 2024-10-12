@@ -2899,7 +2899,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &124380433
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6041,7 +6041,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Transmitter: {fileID: 1560372065}
-  circularObjects: []
+  circularObjects:
+  - objectTransform: {fileID: 124380433}
+    centralPoint: {fileID: 1785260458}
+    radius: 3
+    isDragging: 0
+    angle: 0
+    Zone1: {fileID: 176616046}
+    Zone2: {fileID: 840782435}
+    Zone3: {fileID: 1068849762}
+    CustomZone: {fileID: 239388908}
 --- !u!114 &263112264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6049,7 +6058,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 263112258}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ad834e5dde1346448f17c5455202927, type: 3}
   m_Name: 
@@ -46071,8 +46080,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 98.863625, y: 0}
-  m_SizeDelta: {x: 80, y: 70}
+  m_AnchoredPosition: {x: 98.863625, y: -0.125}
+  m_SizeDelta: {x: 80, y: 72.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1807495594
 MonoBehaviour:

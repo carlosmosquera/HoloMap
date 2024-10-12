@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,58 +6,50 @@ using extOSC;
 public class InputMeters : MonoBehaviour
 {
     public OSCReceiver OSCReceiver;
+    public int NumberOfChannels = 8; // User-defined number of channels, editable in the Inspector
 
-    private string _channel1LevelIn = "/channelIn/1";
-    private string _channel2LevelIn = "/channelIn/2";
-    //private string _channel3LevelIn = "/channelIn/3";
-
-
-    private Slider channel1In;
-    private Slider channel2In;
-    //private Slider channel3In;
+    private List<string> channelLevelIn = new List<string>();
+    private List<Slider> channelSliders = new List<Slider>();
 
     // Start is called before the first frame update
     void Start()
     {
-       
-
-        channel1In = GameObject.Find("Channel1In").GetComponent<Slider>();
-        //channel2In = GameObject.Find("Channel2In").GetComponent<Slider>();
-
-
-
-        OSCReceiver.Bind(_channel1LevelIn, ReceivedInput1);
-        OSCReceiver.Bind(_channel2LevelIn, ReceivedInput2);
-
-
+        InitializeChannelsAndSliders();
     }
 
-    // -------- INPUT ------------
-
-    public void ReceivedInput1(OSCMessage message)
+    private void InitializeChannelsAndSliders()
     {
-        //Debug.Log("channel1In" + message);
+        for (int i = 1; i <= NumberOfChannels; i++)
+        {
+            // Set channel string paths
+            channelLevelIn.Add($"/channelIn/{i}");
 
+            // Find corresponding sliders
+            Slider channelSlider = GameObject.Find($"InCh{i}").GetComponent<Slider>();
+            if (channelSlider != null)
+            {
+                channelSliders.Add(channelSlider);
+            }
+            else
+            {
+                Debug.LogWarning($"Slider for InCh{i} not found. Make sure the GameObject is named correctly.");
+            }
+
+            // Bind OSC messages to corresponding handlers
+            int index = i - 1; // Closure issue prevention
+            OSCReceiver.Bind(channelLevelIn[index], message => ReceivedInput(index, message));
+        }
+    }
+
+    // Generalized input handler
+    private void ReceivedInput(int index, OSCMessage message)
+    {
         if (message.ToFloat(out var value))
         {
-            channel1In.value = value;
+            if (index >= 0 && index < channelSliders.Count)
+            {
+                channelSliders[index].value = value;
+            }
         }
-
     }
-
-
-    public void ReceivedInput2(OSCMessage message)
-    {
-        //Debug.Log("channel1In" + message);
-
-        if (message.ToFloat(out var value))
-        {
-            channel2In.value = value;
-        }
-
-    }
-
-
-
-
 }
