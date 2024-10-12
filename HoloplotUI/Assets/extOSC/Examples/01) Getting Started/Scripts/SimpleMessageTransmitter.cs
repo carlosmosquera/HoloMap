@@ -23,6 +23,7 @@ namespace extOSC.Examples
 			message.AddValue(OSCValue.String("Hello, world!"));
 
 			Transmitter.Send(message);
+			Debug.Log(message);
 		}
 
 		#endregion

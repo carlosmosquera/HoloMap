@@ -2,27 +2,35 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using extOSC;
+using UnityEngine.UI; // For Button UI
 
 public class CircularMovementManagerv2 : MonoBehaviour
 {
     public OSCTransmitter Transmitter;
+    public OSCTransmitter Transmitter10000;
+
+    public OSCReceiver Receiver;
+
+    public Button sendButton;
 
     [System.Serializable]
     public class CircularObject
     {
         public Transform objectTransform;
-        public SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer
+        public SpriteRenderer spriteRenderer;
 
         [HideInInspector]
         public bool isDragging = false;
         [HideInInspector]
-        public float angle = 0.0f;
+        public int angle = 0;  // Store angle as an integer
     }
 
     public List<CircularObject> circularObjects = new List<CircularObject>();
 
     void Start()
     {
+        sendButton.onClick.AddListener(OnSendBang);
+
         // Initialize the number for each object
         for (int i = 0; i < circularObjects.Count; i++)
         {
@@ -58,6 +66,24 @@ public class CircularMovementManagerv2 : MonoBehaviour
             obj.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
             obj.spriteRenderer.sortingOrder = 8;
         }
+
+        // Bind receiver in Start to avoid re-binding in Update
+        Receiver.Bind("/objectPosition", OnReceivePosition);
+    }
+
+    void OnSendBang()
+    {
+        // Create a new OSC message with a specific address
+        var message = new OSCMessage("/bang");
+
+        // Add an integer value of 1 (acting as a "bang")
+        message.AddValue(OSCValue.Int(1));
+
+        // Send the message via the transmitter
+        Transmitter10000.Send(message);
+
+        // Optional: Print debug info
+        Debug.Log("Bang message sent to Max/MSP");
     }
 
     void Update()
@@ -105,38 +131,51 @@ public class CircularMovementManagerv2 : MonoBehaviour
             {
                 // Move object in a circular path
                 Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Vector2 direction = mousePosition - Vector2.zero; // Replacing centralPoint with Vector2.zero
+                Vector2 direction = mousePosition.normalized;
 
-                // Normalize direction to keep the object on the circumference
-                direction.Normalize();
+                // Set the object's position to the edge of the circle with a radius of 3.0f
+                obj.objectTransform.position = direction * 3.0f;
 
-                // Set the object's position to the edge of the circle
-                obj.objectTransform.position = Vector2.zero + direction * 3.0f; // Replacing centralPoint with Vector2.zero
-
-                float cartCoordsX = obj.objectTransform.position.x;
-                float cartCoordsY = obj.objectTransform.position.y;
-                float cartCoordsZ = obj.objectTransform.position.z;
-
-                float outRadius;
-                float outPolar;
-
-                outPolar = Mathf.Atan2(cartCoordsY, cartCoordsX);
-                outPolar = (-outPolar * Mathf.Rad2Deg + 450) % 360;
-
-                outRadius = Mathf.Sqrt((cartCoordsX * cartCoordsX)
-                                + (cartCoordsY * cartCoordsY));
+                // Convert position to polar angle in degrees, rounded to an integer
+                float outPolarFloat = Mathf.Atan2(obj.objectTransform.position.y, obj.objectTransform.position.x) * Mathf.Rad2Deg;
+                int outPolar = Mathf.RoundToInt((450 - outPolarFloat) % 360); // Convert to integer and normalize to [0, 360)
 
                 int ObjectNumber = circularObjects.IndexOf(obj) + 1;
 
-                string _panAddress = "" + ObjectNumber;
+                // Create an OSC message with the address and polar angle
+                var messagePan = new OSCMessage("/objectPosition");
+                messagePan.AddValue(OSCValue.Int(ObjectNumber));
+                messagePan.AddValue(OSCValue.Int(outPolar));  // Send outPolar as an integer
 
-                var messagePan = new OSCMessage(_panAddress);
-                messagePan.AddValue(OSCValue.Float(outPolar));
-
-                Debug.Log($"Object {ObjectNumber} position: {outPolar}");
+                Debug.Log($"Object {ObjectNumber} position: {outPolar} degrees");
 
                 Transmitter.Send(messagePan);
             }
+        }
+    }
+
+    private void OnReceivePosition(OSCMessage message)
+    {
+        // Get object index and angle from the message
+        int objectIndex = message.Values[0].IntValue - 1;  // Assuming the message sends object index starting from 1
+        int angle = message.Values[1].IntValue;  // Received as an integer
+
+        Debug.Log($"Received OSC Message - Object Index: {objectIndex + 1}, Angle: {angle} degrees");
+
+        if (objectIndex >= 0 && objectIndex < circularObjects.Count)
+        {
+            CircularObject obj = circularObjects[objectIndex];
+
+            // Convert angle back to Cartesian coordinates and set object's position
+            float angleInRadians = angle * Mathf.Deg2Rad;
+            Vector2 direction = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians));
+            obj.objectTransform.position = direction * 3.0f;  // Assuming the radius is still 3.0f
+
+            Debug.Log($"Object {objectIndex + 1} position updated based on received angle: {angle} degrees");
+        }
+        else
+        {
+            Debug.LogWarning($"Received object index {objectIndex + 1} is out of bounds for the circular objects list.");
         }
     }
 }
