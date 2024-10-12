@@ -5,7 +5,7 @@ public class RingMeshGenerator : MonoBehaviour
 {
     public float innerRadius = 0.5f;
     public float outerRadius = 1f;
-    public int segments = 36;
+    public int segments = 72; // Increased segment count for smoother edges
 
     void Start()
     {
@@ -48,7 +48,9 @@ public class RingMeshGenerator : MonoBehaviour
         mesh.triangles = triangles;
         mesh.uv = uv;
         mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
 
-        GetComponent<MeshFilter>().mesh = mesh;
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        meshFilter.mesh = mesh;
     }
 }

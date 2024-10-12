@@ -11,6 +11,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
     public class CircularObject
     {
         public Transform objectTransform;
+        public SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer
 
         [HideInInspector]
         public bool isDragging = false;
@@ -42,6 +43,20 @@ public class CircularMovementManagerv2 : MonoBehaviour
 
             // Adjust the position if necessary
             numberObject.transform.localPosition = new Vector3(0, 0, -1);
+
+            // Add a SpriteRenderer if not already set
+            if (obj.spriteRenderer == null)
+            {
+                obj.spriteRenderer = obj.objectTransform.GetComponent<SpriteRenderer>();
+                if (obj.spriteRenderer == null)
+                {
+                    obj.spriteRenderer = obj.objectTransform.gameObject.AddComponent<SpriteRenderer>();
+                }
+            }
+
+            // Set the initial appearance of the circular object
+            obj.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
+            obj.spriteRenderer.sortingOrder = 8;
         }
     }
 
@@ -62,6 +77,8 @@ public class CircularMovementManagerv2 : MonoBehaviour
                         if (hit.collider.transform == obj.objectTransform)
                         {
                             obj.isDragging = true;
+                            obj.spriteRenderer.color = new Color(0.3f, 0.3f, 1.0f); // Darker blue when dragging
+                            obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Adding glossiness for a 3D effect
                             break;
                         }
                     }
@@ -74,7 +91,11 @@ public class CircularMovementManagerv2 : MonoBehaviour
         {
             foreach (var obj in circularObjects)
             {
-                obj.isDragging = false;
+                if (obj.isDragging)
+                {
+                    obj.isDragging = false;
+                    obj.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Revert to light blue when not dragging
+                }
             }
         }
 
