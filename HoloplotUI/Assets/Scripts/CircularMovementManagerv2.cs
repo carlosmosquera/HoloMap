@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 using TMPro;
 using extOSC;
 using UnityEngine.UI; // For Button UI
@@ -12,6 +12,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
     public OSCReceiver Receiver;
 
     public Button sendButton;
+    public Button snapButton;
 
     [System.Serializable]
     public class CircularObject
@@ -22,14 +23,29 @@ public class CircularMovementManagerv2 : MonoBehaviour
         [HideInInspector]
         public bool isDragging = false;
         [HideInInspector]
+        public bool isSelected = false; // New flag to indicate if the object is selected
+        [HideInInspector]
         public int angle = 0;  // Store angle as an integer
     }
 
     public List<CircularObject> circularObjects = new List<CircularObject>();
+    public List<float> degreeAngles; // List of degree angles provided by the user
 
     void Start()
     {
+        // Get degree angles from CustomZoneSpawner
+        CustomZoneSpawner zoneSpawner = FindObjectOfType<CustomZoneSpawner>();
+        if (zoneSpawner != null)
+        {
+            degreeAngles = zoneSpawner.degreeAngles;
+        }
+        else
+        {
+            Debug.LogError("CustomZoneSpawner not found in the scene.");
+        }
+
         //sendButton.onClick.AddListener(OnSendBang);
+        snapButton.onClick.AddListener(SnapToClosestAngle);
 
         // Initialize the number for each object
         for (int i = 0; i < circularObjects.Count; i++)
@@ -71,21 +87,6 @@ public class CircularMovementManagerv2 : MonoBehaviour
         //Receiver.Bind("/objectPositions", OnReceivePositions);
     }
 
-    //void OnSendBang()
-    //{
-    //    // Create a new OSC message with a specific address
-    //    var message = new OSCMessage("/bang");
-
-    //    // Add an integer value of 1 (acting as a "bang")
-    //    message.AddValue(OSCValue.Int(1));
-
-    //    // Send the message via the transmitter
-    //    Transmitter10000.Send(message);
-
-    //    // Optional: Print debug info
-    //    Debug.Log("Bang message sent to Max/MSP");
-    //}
-
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -103,6 +104,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
                         if (hit.collider.transform == obj.objectTransform)
                         {
                             obj.isDragging = true;
+                            obj.isSelected = true;
                             obj.spriteRenderer.color = new Color(0.3f, 0.3f, 1.0f); // Darker blue when dragging
                             obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Adding glossiness for a 3D effect
                             break;
@@ -154,40 +156,41 @@ public class CircularMovementManagerv2 : MonoBehaviour
         }
     }
 
-    //private void OnReceivePositions(OSCMessage message)
-    //{
-    //    Debug.Log(message.Values.Count);
-    //    Debug.Log(message.Values[0].StringValue);
+    void SnapToClosestAngle()
+    {
+        foreach (var obj in circularObjects)
+        {
+            if (obj.isSelected)
+            {
+                // Find the closest angle from degreeAngles list
+                float currentAngle = Mathf.Atan2(obj.objectTransform.position.y, obj.objectTransform.position.x) * Mathf.Rad2Deg;
+                float closestAngle = FindClosestAngle(currentAngle);
 
-    //    if (message.Values.Count == 32) // 1 string + 32 integer arguments
-    //    {
-    //        string messageLabel = message.Values[0].StringValue; // Assuming it's a descriptive string
-    //        Debug.Log($"Received OSC Message - Label: {messageLabel}");
+                // Convert closest angle to Cartesian coordinates and set object's position
+                float angleInRadians = closestAngle * Mathf.Deg2Rad;
+                Vector2 snappedPosition = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)) * 3.0f;
+                obj.objectTransform.position = snappedPosition;
 
-    //        for (int i = 0; i < 32; i++)
-    //        {
-    //            int angle = message.Values[i + 1].IntValue;
+                Debug.Log($"Object snapped to closest angle: {closestAngle} degrees");
+            }
+        }
+    }
 
-    //            if (i < circularObjects.Count)
-    //            {
-    //                CircularObject obj = circularObjects[i];
+    float FindClosestAngle(float currentAngle)
+    {
+        float minDistance = Mathf.Infinity;
+        float closestAngle = currentAngle;
 
-    //                // Convert angle back to Cartesian coordinates and set object's position
-    //                float angleInRadians = angle * Mathf.Deg2Rad;
-    //                Vector2 direction = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians));
-    //                obj.objectTransform.position = direction * 3.0f;  // Assuming the radius is still 3.0f
+        foreach (float angle in degreeAngles)
+        {
+            float distance = Mathf.Abs(Mathf.DeltaAngle(currentAngle, angle));
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestAngle = angle;
+            }
+        }
 
-    //                Debug.Log($"Object {i + 1} position updated based on received angle: {angle} degrees");
-    //            }
-    //            else
-    //            {
-    //                Debug.LogWarning($"Received object index {i + 1} is out of bounds for the circular objects list.");
-    //            }
-    //        }
-    //    }
-    //    else
-    //    {
-    //        Debug.LogWarning("Received OSC message does not have the expected number of arguments.");
-    //    }
-    //}
+        return closestAngle;
+    }
 }
