@@ -127,7 +127,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
 
                 // Convert position to polar angle in degrees, rounded to an integer
                 float outPolarFloat = Mathf.Atan2(obj.objectTransform.position.y, obj.objectTransform.position.x) * Mathf.Rad2Deg;
-                int outPolar = Mathf.RoundToInt((450 - outPolarFloat) % 360); // Convert to integer and normalize to [0, 360)
+                int outPolar = Mathf.RoundToInt((360 - outPolarFloat + 90) % 360); // Convert to integer and normalize to [0, 360), with 0 degrees at the top
 
                 int ObjectNumber = circularObjects.IndexOf(obj) + 1;
 
@@ -147,12 +147,16 @@ public class CircularMovementManagerv2 : MonoBehaviour
     {
         if (lastSelectedObject != null)
         {
-            // Find the closest angle from the degreeAngles list
-            float currentAngle = Mathf.Atan2(lastSelectedObject.objectTransform.position.y, lastSelectedObject.objectTransform.position.x) * Mathf.Rad2Deg;
-            currentAngle = (currentAngle + 360) % 360; // Normalize angle to [0, 360)
+            float outPolarFloat = Mathf.Atan2(lastSelectedObject.objectTransform.position.y, lastSelectedObject.objectTransform.position.x) * Mathf.Rad2Deg;
+            int outPolar = Mathf.RoundToInt((360 - outPolarFloat + 90) % 360);
 
-            float closestAngle = zoneSpawner.degreeAngles[0];
-            float minDifference = Mathf.Abs(Mathf.DeltaAngle(currentAngle, closestAngle));
+            // Find the closest angle from the degreeAngles list
+            //float currentAngle = Mathf.Atan2(lastSelectedObject.objectTransform.position.y, lastSelectedObject.objectTransform.position.x) * Mathf.Rad2Deg;
+            //currentAngle = (currentAngle + 360 - 90) % 360; // Normalize angle to [0, 360), with 0 degrees at the top
+            float currentAngle = outPolar;
+            Debug.Log(currentAngle);
+            float closestAngle = float.NaN;
+            float minDifference = float.MaxValue;
 
             foreach (float angle in zoneSpawner.degreeAngles)
             {
@@ -166,7 +170,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
 
             // Snap the object to the closest angle
             lastSelectedObject.snappedAngle = closestAngle;
-            float radiansClosest = (450 - closestAngle) % 360 * Mathf.Deg2Rad;
+            float radiansClosest = closestAngle * Mathf.Deg2Rad;
             float xClosest = Mathf.Cos(radiansClosest) * 3.0f;
             float yClosest = Mathf.Sin(radiansClosest) * 3.0f;
 
