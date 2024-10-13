@@ -4699,170 +4699,169 @@ MonoBehaviour:
   Transmitter: {fileID: 1560372065}
   Transmitter10000: {fileID: 403995478}
   Receiver: {fileID: 1560372067}
-  sendButton: {fileID: 1114358201}
-  snapButton: {fileID: 377555152}
+  zoneSpawner: {fileID: 1660191660}
   circularObjects:
   - objectTransform: {fileID: 1773070286}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1146467177}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 2082793961}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 463567486}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1244735940}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1915309065}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1949461012}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 635343860}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 931541249}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 676886779}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1713156589}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1873978050}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1823374829}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1517457163}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1751923059}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 615839078}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 6341614}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 2037243695}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1713468248}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1089567827}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1015594906}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1472795487}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1333600619}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 885594524}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 332340403}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 790034253}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1644378522}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 865244791}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 1903797128}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 785146512}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 260823397}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
+    snappedAngle: NaN
   - objectTransform: {fileID: 968848077}
     spriteRenderer: {fileID: 0}
     isDragging: 0
-    isSelected: 0
     angle: 0
-  degreeAngles: []
+    snappedAngle: NaN
+  snapButton: {fileID: 377555152}
 --- !u!1 &263476566
 GameObject:
   m_ObjectHideFlags: 0
