@@ -166,7 +166,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
 
             // Snap the object to the closest angle
             lastSelectedObject.snappedAngle = closestAngle;
-            float radiansClosest = closestAngle * Mathf.Deg2Rad;
+            float radiansClosest = (450 - closestAngle) % 360 * Mathf.Deg2Rad;
             float xClosest = Mathf.Cos(radiansClosest) * 3.0f;
             float yClosest = Mathf.Sin(radiansClosest) * 3.0f;
 
