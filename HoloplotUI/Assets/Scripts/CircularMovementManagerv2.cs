@@ -29,7 +29,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
 
     void Start()
     {
-        sendButton.onClick.AddListener(OnSendBang);
+        //sendButton.onClick.AddListener(OnSendBang);
 
         // Initialize the number for each object
         for (int i = 0; i < circularObjects.Count; i++)
@@ -68,23 +68,23 @@ public class CircularMovementManagerv2 : MonoBehaviour
         }
 
         // Bind receiver in Start to avoid re-binding in Update
-        Receiver.Bind("/objectPosition", OnReceivePosition);
+        //Receiver.Bind("/objectPositions", OnReceivePositions);
     }
 
-    void OnSendBang()
-    {
-        // Create a new OSC message with a specific address
-        var message = new OSCMessage("/bang");
+    //void OnSendBang()
+    //{
+    //    // Create a new OSC message with a specific address
+    //    var message = new OSCMessage("/bang");
 
-        // Add an integer value of 1 (acting as a "bang")
-        message.AddValue(OSCValue.Int(1));
+    //    // Add an integer value of 1 (acting as a "bang")
+    //    message.AddValue(OSCValue.Int(1));
 
-        // Send the message via the transmitter
-        Transmitter10000.Send(message);
+    //    // Send the message via the transmitter
+    //    Transmitter10000.Send(message);
 
-        // Optional: Print debug info
-        Debug.Log("Bang message sent to Max/MSP");
-    }
+    //    // Optional: Print debug info
+    //    Debug.Log("Bang message sent to Max/MSP");
+    //}
 
     void Update()
     {
@@ -154,28 +154,40 @@ public class CircularMovementManagerv2 : MonoBehaviour
         }
     }
 
-    private void OnReceivePosition(OSCMessage message)
-    {
-        // Get object index and angle from the message
-        int objectIndex = message.Values[0].IntValue - 1;  // Assuming the message sends object index starting from 1
-        int angle = message.Values[1].IntValue;  // Received as an integer
+    //private void OnReceivePositions(OSCMessage message)
+    //{
+    //    Debug.Log(message.Values.Count);
+    //    Debug.Log(message.Values[0].StringValue);
 
-        Debug.Log($"Received OSC Message - Object Index: {objectIndex + 1}, Angle: {angle} degrees");
+    //    if (message.Values.Count == 32) // 1 string + 32 integer arguments
+    //    {
+    //        string messageLabel = message.Values[0].StringValue; // Assuming it's a descriptive string
+    //        Debug.Log($"Received OSC Message - Label: {messageLabel}");
 
-        if (objectIndex >= 0 && objectIndex < circularObjects.Count)
-        {
-            CircularObject obj = circularObjects[objectIndex];
+    //        for (int i = 0; i < 32; i++)
+    //        {
+    //            int angle = message.Values[i + 1].IntValue;
 
-            // Convert angle back to Cartesian coordinates and set object's position
-            float angleInRadians = angle * Mathf.Deg2Rad;
-            Vector2 direction = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians));
-            obj.objectTransform.position = direction * 3.0f;  // Assuming the radius is still 3.0f
+    //            if (i < circularObjects.Count)
+    //            {
+    //                CircularObject obj = circularObjects[i];
 
-            Debug.Log($"Object {objectIndex + 1} position updated based on received angle: {angle} degrees");
-        }
-        else
-        {
-            Debug.LogWarning($"Received object index {objectIndex + 1} is out of bounds for the circular objects list.");
-        }
-    }
+    //                // Convert angle back to Cartesian coordinates and set object's position
+    //                float angleInRadians = angle * Mathf.Deg2Rad;
+    //                Vector2 direction = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians));
+    //                obj.objectTransform.position = direction * 3.0f;  // Assuming the radius is still 3.0f
+
+    //                Debug.Log($"Object {i + 1} position updated based on received angle: {angle} degrees");
+    //            }
+    //            else
+    //            {
+    //                Debug.LogWarning($"Received object index {i + 1} is out of bounds for the circular objects list.");
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        Debug.LogWarning("Received OSC message does not have the expected number of arguments.");
+    //    }
+    //}
 }
