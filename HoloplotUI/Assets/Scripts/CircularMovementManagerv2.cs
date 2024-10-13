@@ -11,8 +11,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
 
     public OSCReceiver Receiver;
 
-    public Button sendButton;
-    public Button snapButton;
+    public CustomZoneSpawner zoneSpawner; // Reference to CustomZoneSpawner to access degreeAngles
 
     [System.Serializable]
     public class CircularObject
@@ -23,30 +22,19 @@ public class CircularMovementManagerv2 : MonoBehaviour
         [HideInInspector]
         public bool isDragging = false;
         [HideInInspector]
-        public bool isSelected = false; // New flag to indicate if the object is selected
-        [HideInInspector]
         public int angle = 0;  // Store angle as an integer
+        [HideInInspector]
+        public float snappedAngle = float.NaN; // Store snapped angle
     }
 
     public List<CircularObject> circularObjects = new List<CircularObject>();
-    public List<float> degreeAngles; // List of degree angles provided by the user
+
+    public Button snapButton; // Reference to the Snap Button
+
+    private CircularObject lastSelectedObject = null; // Track the last selected object
 
     void Start()
     {
-        // Get degree angles from CustomZoneSpawner
-        CustomZoneSpawner zoneSpawner = FindObjectOfType<CustomZoneSpawner>();
-        if (zoneSpawner != null)
-        {
-            degreeAngles = zoneSpawner.degreeAngles;
-        }
-        else
-        {
-            Debug.LogError("CustomZoneSpawner not found in the scene.");
-        }
-
-        //sendButton.onClick.AddListener(OnSendBang);
-        snapButton.onClick.AddListener(SnapToClosestAngle);
-
         // Initialize the number for each object
         for (int i = 0; i < circularObjects.Count; i++)
         {
@@ -83,8 +71,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
             obj.spriteRenderer.sortingOrder = 8;
         }
 
-        // Bind receiver in Start to avoid re-binding in Update
-        //Receiver.Bind("/objectPositions", OnReceivePositions);
+        snapButton.onClick.AddListener(SnapObjectsToClosestAngle); // Assign Snap Button click event
     }
 
     void Update()
@@ -104,9 +91,9 @@ public class CircularMovementManagerv2 : MonoBehaviour
                         if (hit.collider.transform == obj.objectTransform)
                         {
                             obj.isDragging = true;
-                            obj.isSelected = true;
                             obj.spriteRenderer.color = new Color(0.3f, 0.3f, 1.0f); // Darker blue when dragging
                             obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Adding glossiness for a 3D effect
+                            lastSelectedObject = obj; // Update the last selected object
                             break;
                         }
                     }
@@ -156,41 +143,36 @@ public class CircularMovementManagerv2 : MonoBehaviour
         }
     }
 
-    void SnapToClosestAngle()
+    void SnapObjectsToClosestAngle()
     {
-        foreach (var obj in circularObjects)
+        if (lastSelectedObject != null)
         {
-            if (obj.isSelected)
+            // Find the closest angle from the degreeAngles list
+            float currentAngle = Mathf.Atan2(lastSelectedObject.objectTransform.position.y, lastSelectedObject.objectTransform.position.x) * Mathf.Rad2Deg;
+            currentAngle = (currentAngle + 360) % 360; // Normalize angle to [0, 360)
+
+            float closestAngle = zoneSpawner.degreeAngles[0];
+            float minDifference = Mathf.Abs(Mathf.DeltaAngle(currentAngle, closestAngle));
+
+            foreach (float angle in zoneSpawner.degreeAngles)
             {
-                // Find the closest angle from degreeAngles list
-                float currentAngle = Mathf.Atan2(obj.objectTransform.position.y, obj.objectTransform.position.x) * Mathf.Rad2Deg;
-                float closestAngle = FindClosestAngle(currentAngle);
-
-                // Convert closest angle to Cartesian coordinates and set object's position
-                float angleInRadians = closestAngle * Mathf.Deg2Rad;
-                Vector2 snappedPosition = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)) * 3.0f;
-                obj.objectTransform.position = snappedPosition;
-
-                Debug.Log($"Object snapped to closest angle: {closestAngle} degrees");
+                float difference = Mathf.Abs(Mathf.DeltaAngle(currentAngle, angle));
+                if (difference < minDifference)
+                {
+                    minDifference = difference;
+                    closestAngle = angle;
+                }
             }
+
+            // Snap the object to the closest angle
+            lastSelectedObject.snappedAngle = closestAngle;
+            float radiansClosest = closestAngle * Mathf.Deg2Rad;
+            float xClosest = Mathf.Cos(radiansClosest) * 3.0f;
+            float yClosest = Mathf.Sin(radiansClosest) * 3.0f;
+
+            lastSelectedObject.objectTransform.position = new Vector2(xClosest, yClosest);
+
+            Debug.Log($"Object snapped to {closestAngle} degrees");
         }
-    }
-
-    float FindClosestAngle(float currentAngle)
-    {
-        float minDistance = Mathf.Infinity;
-        float closestAngle = currentAngle;
-
-        foreach (float angle in degreeAngles)
-        {
-            float distance = Mathf.Abs(Mathf.DeltaAngle(currentAngle, angle));
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                closestAngle = angle;
-            }
-        }
-
-        return closestAngle;
     }
 }
