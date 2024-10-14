@@ -97,7 +97,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
             textMesh.fontSize = 4;
             textMesh.color = Color.black;
             textMesh.alignment = TextAlignmentOptions.Center;
-            textMesh.sortingOrder = 9;
+            textMesh.sortingOrder = 11;
 
             // Adjust the position if necessary
             numberObject.transform.localPosition = new Vector3(0, 0, -1);
@@ -250,30 +250,34 @@ public class CircularMovementManagerv2 : MonoBehaviour
     {
         if (lastSelectedObject != null && lastSelectedObject != obj)
         {
-            // Revert the color of the previously selected object
+            // Revert the color and sorting order of the previously selected object
             lastSelectedObject.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
+            lastSelectedObject.spriteRenderer.sortingOrder = 8; // Reset sorting order to original value
         }
 
         // Highlight the current selected object
         obj.spriteRenderer.color = Color.blue; // Darker blue
         obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Optional: Add glossiness for effect
 
+        obj.spriteRenderer.sortingOrder = 10; // Set higher sorting order to bring it on top
+
         lastSelectedObject = obj; // Update the last selected object
     }
-
-
 
     void SelectObject(CircularObject obj)
     {
         if (lastSelectedObject != null && lastSelectedObject != obj)
         {
-            // Revert the color of the previously selected object
+            // Revert the color and sorting order of the previously selected object
             lastSelectedObject.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
+            lastSelectedObject.spriteRenderer.sortingOrder = 8; // Reset sorting order to original value
         }
 
         // Highlight the current selected object
         obj.spriteRenderer.color = Color.blue; // Darker blue
         obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Optional: Add glossiness for effect
+
+        obj.spriteRenderer.sortingOrder = 10; // Set higher sorting order to bring it on top
 
         lastSelectedObject = obj; // Update the last selected object
         obj.isDragging = true; // Enable dragging for the selected object
@@ -303,6 +307,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
             Debug.LogWarning($"Index {index} is out of bounds for sliderTexts (count: {sliderTexts.Count})");
         }
     }
+
 
 
     void SnapObjectsToClosestAngle()
