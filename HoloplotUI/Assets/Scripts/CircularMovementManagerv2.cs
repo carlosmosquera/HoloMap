@@ -74,6 +74,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
         snapButton.onClick.AddListener(SnapObjectsToClosestAngle); // Assign Snap Button click event
     }
 
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -90,10 +91,18 @@ public class CircularMovementManagerv2 : MonoBehaviour
                     {
                         if (hit.collider.transform == obj.objectTransform)
                         {
-                            obj.isDragging = true;
-                            obj.spriteRenderer.color = new Color(0.3f, 0.3f, 1.0f); // Darker blue when dragging
-                            obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Adding glossiness for a 3D effect
+                            if (lastSelectedObject != null && lastSelectedObject != obj)
+                            {
+                                // Revert the color of the previously selected object
+                                lastSelectedObject.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
+                            }
+
+                            // Highlight the current selected object
+                            obj.spriteRenderer.color = new Color(0.3f, 0.3f, 1.0f); // Darker blue
+                            obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Optional: Add glossiness for effect
+
                             lastSelectedObject = obj; // Update the last selected object
+                            obj.isDragging = true; // Enable dragging for the selected object
                             break;
                         }
                     }
@@ -109,7 +118,15 @@ public class CircularMovementManagerv2 : MonoBehaviour
                 if (obj.isDragging)
                 {
                     obj.isDragging = false;
-                    obj.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Revert to light blue when not dragging
+                    // Keep the darker color for the currently selected object
+                    if (obj == lastSelectedObject)
+                    {
+                        obj.spriteRenderer.color = new Color(0.3f, 0.3f, 1.0f); // Darker blue
+                    }
+                    else
+                    {
+                        obj.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
+                    }
                 }
             }
         }
@@ -134,7 +151,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
                 // Create an OSC message with the address and polar angle
                 var messagePan = new OSCMessage("/objectPosition");
                 messagePan.AddValue(OSCValue.Int(ObjectNumber));
-                messagePan.AddValue(OSCValue.Int(outPolar));  // Send outPolar as an integer
+                messagePan.AddValue(OSCValue.Int(outPolar)); // Send outPolar as an integer
 
                 Debug.Log($"Object {ObjectNumber} position: {outPolar} degrees");
 
@@ -142,6 +159,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
             }
         }
     }
+
 
     void SnapObjectsToClosestAngle()
     {
