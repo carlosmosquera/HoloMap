@@ -28,13 +28,59 @@ public class CircularMovementManagerv2 : MonoBehaviour
     }
 
     public List<CircularObject> circularObjects = new List<CircularObject>();
+    public List<TMP_Text> sliderTexts = new List<TMP_Text>(); // Reference to the TMP_Text of each slider
 
     public Button snapButton; // Reference to the Snap Button
 
     private CircularObject lastSelectedObject = null; // Track the last selected object
+    private TMP_Text lastSelectedSliderText = null; // Track the last selected slider text
+
+    public Transform slidersParent; // Reference to the parent of all sliders
 
     void Start()
     {
+        // Retrieve the TMP_Text components from each child of the parent folder
+        for (int i = 0; i < slidersParent.childCount; i++)
+        {
+            Transform sliderChild = slidersParent.GetChild(i);
+            Debug.Log($"Child {i}: {sliderChild.name}");
+
+            Transform objNumberTransform = sliderChild.Find("Obj Number");
+            if (objNumberTransform != null)
+            {
+                // Check for TextMeshPro or TextMeshProUGUI components
+                TMP_Text textMeshPro = objNumberTransform.GetComponent<TMP_Text>();
+
+                if (textMeshPro != null)
+                {
+                    sliderTexts.Add(textMeshPro);
+                    Debug.Log($"Slider Text Added: {textMeshPro.text}");
+
+                    // Add BoxCollider2D to Obj Number if it doesn't exist
+                    BoxCollider2D collider = objNumberTransform.GetComponent<BoxCollider2D>();
+                    if (collider == null)
+                    {
+                        collider = objNumberTransform.gameObject.AddComponent<BoxCollider2D>();
+                    }
+
+                    // Set collider properties
+                    collider.isTrigger = true;
+                    collider.offset = new Vector2(100, 0);
+                    collider.size = new Vector2(450, 72);
+                }
+                else
+                {
+                    Debug.LogWarning($"TextMeshPro component not found in child 'Obj Number' of {sliderChild.name}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Child named 'Obj Number' not found in {sliderChild.name}");
+            }
+        }
+
+        Debug.Log($"Total Slider Texts Found: {sliderTexts.Count}");
+
         // Initialize the number for each object
         for (int i = 0; i < circularObjects.Count; i++)
         {
@@ -74,7 +120,6 @@ public class CircularMovementManagerv2 : MonoBehaviour
         snapButton.onClick.AddListener(SnapObjectsToClosestAngle); // Assign Snap Button click event
     }
 
-
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -84,29 +129,44 @@ public class CircularMovementManagerv2 : MonoBehaviour
 
             if (hits.Length > 0)
             {
-                // Find the topmost object in the circularObjects list that matches a hit
+                bool isObjNumberSelected = false;
+
+                // Find the topmost object or TMP_Text that matches a hit
                 foreach (var hit in hits)
                 {
+                    // Check if the hit is on a TMP_Text for the slider (Obj Number)
+                    foreach (var text in sliderTexts)
+                    {
+                        if (hit.collider.transform == text.transform)
+                        {
+                            SelectSliderText(text);
+                            isObjNumberSelected = true;
+
+                            // Select corresponding circular object without enabling dragging
+                            int index = sliderTexts.IndexOf(text);
+                            if (index != -1)
+                            {
+                                HighlightObjectWithoutDragging(circularObjects[index]);
+                            }
+
+                            break;
+                        }
+                    }
+
+                    // Skip selecting a CircularObject if Obj Number was selected
+                    if (isObjNumberSelected) break;
+
+                    // Check if the hit is on a CircularObject
                     foreach (var obj in circularObjects)
                     {
                         if (hit.collider.transform == obj.objectTransform)
                         {
-                            if (lastSelectedObject != null && lastSelectedObject != obj)
-                            {
-                                // Revert the color of the previously selected object
-                                lastSelectedObject.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
-                            }
-
-                            // Highlight the current selected object
-                            obj.spriteRenderer.color = new Color(0.3f, 0.3f, 1.0f); // Darker blue
-                            obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Optional: Add glossiness for effect
-
-                            lastSelectedObject = obj; // Update the last selected object
-                            obj.isDragging = true; // Enable dragging for the selected object
+                            SelectObject(obj);
                             break;
                         }
                     }
-                    if (circularObjects.Exists(o => o.isDragging)) break; // Break if one is found
+
+                    if (circularObjects.Exists(o => o.isDragging) || sliderTexts.Contains(lastSelectedSliderText)) break; // Break if one is found
                 }
             }
         }
@@ -121,7 +181,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
                     // Keep the darker color for the currently selected object
                     if (obj == lastSelectedObject)
                     {
-                        obj.spriteRenderer.color = new Color(0.3f, 0.3f, 1.0f); // Darker blue
+                        obj.spriteRenderer.color = Color.blue; // Darker blue
                     }
                     else
                     {
@@ -157,6 +217,90 @@ public class CircularMovementManagerv2 : MonoBehaviour
 
                 Transmitter.Send(messagePan);
             }
+        }
+    }
+
+    void SelectSliderText(TMP_Text text)
+    {
+        Debug.Log("SelectSliderText called");
+        int index = sliderTexts.IndexOf(text);
+        Debug.Log($"Index of clicked text: {index}");
+
+        if (index != -1)
+        {
+            Debug.Log("Valid index found, highlighting text");
+
+            // Highlight the text
+            if (lastSelectedSliderText != null)
+            {
+                lastSelectedSliderText.color = Color.white; // Revert previous slider text to black
+            }
+
+            lastSelectedSliderText = sliderTexts[index];
+            lastSelectedSliderText.color = Color.blue; // Highlight the current slider text
+            Debug.Log($"Highlighting slider text for object {index + 1}");
+        }
+        else
+        {
+            Debug.LogWarning($"Index {index} is invalid or not found in sliderTexts");
+        }
+    }
+
+    void HighlightObjectWithoutDragging(CircularObject obj)
+    {
+        if (lastSelectedObject != null && lastSelectedObject != obj)
+        {
+            // Revert the color of the previously selected object
+            lastSelectedObject.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
+        }
+
+        // Highlight the current selected object
+        obj.spriteRenderer.color = Color.blue; // Darker blue
+        obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Optional: Add glossiness for effect
+
+        lastSelectedObject = obj; // Update the last selected object
+    }
+
+
+
+    void SelectObject(CircularObject obj)
+    {
+        if (lastSelectedObject != null && lastSelectedObject != obj)
+        {
+            // Revert the color of the previously selected object
+            lastSelectedObject.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
+        }
+
+        // Highlight the current selected object
+        obj.spriteRenderer.color = Color.blue; // Darker blue
+        obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Optional: Add glossiness for effect
+
+        lastSelectedObject = obj; // Update the last selected object
+        obj.isDragging = true; // Enable dragging for the selected object
+
+        // Highlight the corresponding slider text
+        if (lastSelectedSliderText != null)
+        {
+            lastSelectedSliderText.color = Color.white; // Revert previous slider text to black
+        }
+
+        int index = circularObjects.IndexOf(obj);
+        if (index >= 0 && index < sliderTexts.Count)
+        {
+            lastSelectedSliderText = sliderTexts[index];
+            if (lastSelectedSliderText != null)
+            {
+                lastSelectedSliderText.color = Color.blue; // Highlight the current slider text
+                Debug.Log($"Highlighting slider text for object {index + 1}");
+            }
+            else
+            {
+                Debug.LogWarning($"Slider text at index {index} is null");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Index {index} is out of bounds for sliderTexts (count: {sliderTexts.Count})");
         }
     }
 
