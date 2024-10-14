@@ -42792,7 +42792,7 @@ GameObject:
   - component: {fileID: 2025886785}
   - component: {fileID: 2025886784}
   m_Layer: 5
-  m_Name: Input Number
+  m_Name: Obj Number
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

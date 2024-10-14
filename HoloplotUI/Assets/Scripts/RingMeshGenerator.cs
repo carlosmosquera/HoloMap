@@ -4,8 +4,8 @@ using UnityEngine;
 public class RingMeshGenerator : MonoBehaviour
 {
     public float innerRadius = 0.5f;
-    public float outerRadius = 1f;
-    public int segments = 72; // Increased segment count for smoother edges
+    public float outerRadius = 1.25f; // Increased outer radius for a thicker ring
+    public int segments = 144; // Increased segment count for smoother edges and a more solid look
 
     void Start()
     {
