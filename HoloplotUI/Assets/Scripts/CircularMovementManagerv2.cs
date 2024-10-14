@@ -97,7 +97,7 @@ public class CircularMovementManagerv2 : MonoBehaviour
             textMesh.fontSize = 4;
             textMesh.color = Color.black;
             textMesh.alignment = TextAlignmentOptions.Center;
-            textMesh.sortingOrder = 11;
+            textMesh.sortingOrder = 12; // Ensure text is always on top
 
             // Adjust the position if necessary
             numberObject.transform.localPosition = new Vector3(0, 0, -1);
@@ -130,6 +130,8 @@ public class CircularMovementManagerv2 : MonoBehaviour
             if (hits.Length > 0)
             {
                 bool isObjNumberSelected = false;
+                CircularObject topmostObject = null;
+                float highestSortingOrder = float.MinValue;
 
                 // Find the topmost object or TMP_Text that matches a hit
                 foreach (var hit in hits)
@@ -159,14 +161,18 @@ public class CircularMovementManagerv2 : MonoBehaviour
                     // Check if the hit is on a CircularObject
                     foreach (var obj in circularObjects)
                     {
-                        if (hit.collider.transform == obj.objectTransform)
+                        if (hit.collider.transform == obj.objectTransform && obj.spriteRenderer.sortingOrder > highestSortingOrder)
                         {
-                            SelectObject(obj);
-                            break;
+                            topmostObject = obj;
+                            highestSortingOrder = obj.spriteRenderer.sortingOrder;
                         }
                     }
+                }
 
-                    if (circularObjects.Exists(o => o.isDragging) || sliderTexts.Contains(lastSelectedSliderText)) break; // Break if one is found
+                // Select the topmost object if found
+                if (topmostObject != null)
+                {
+                    SelectObject(topmostObject);
                 }
             }
         }
@@ -253,13 +259,32 @@ public class CircularMovementManagerv2 : MonoBehaviour
             // Revert the color and sorting order of the previously selected object
             lastSelectedObject.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
             lastSelectedObject.spriteRenderer.sortingOrder = 8; // Reset sorting order to original value
+            Transform numberTransform = lastSelectedObject.objectTransform.Find("Number");
+            if (numberTransform != null)
+            {
+                var textMeshPro = numberTransform.GetComponent<TextMeshPro>();
+                if (textMeshPro != null)
+                {
+                    textMeshPro.sortingOrder = 9; // Lower sorting order
+                }
+            }
         }
 
         // Highlight the current selected object
         obj.spriteRenderer.color = Color.blue; // Darker blue
         obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Optional: Add glossiness for effect
 
-        obj.spriteRenderer.sortingOrder = 10; // Set higher sorting order to bring it on top
+        obj.spriteRenderer.sortingOrder = 11; // Set higher sorting order to bring it on top
+
+        Transform currentNumberTransform = obj.objectTransform.Find("Number");
+        if (currentNumberTransform != null)
+        {
+            var currentTextMeshPro = currentNumberTransform.GetComponent<TextMeshPro>();
+            if (currentTextMeshPro != null)
+            {
+                currentTextMeshPro.sortingOrder = 12; // Higher sorting order to keep text on top
+            }
+        }
 
         lastSelectedObject = obj; // Update the last selected object
     }
@@ -271,44 +296,41 @@ public class CircularMovementManagerv2 : MonoBehaviour
             // Revert the color and sorting order of the previously selected object
             lastSelectedObject.spriteRenderer.color = new Color(0.7f, 0.7f, 1.0f); // Light blue
             lastSelectedObject.spriteRenderer.sortingOrder = 8; // Reset sorting order to original value
+            Transform numberTransform = lastSelectedObject.objectTransform.Find("Number");
+            if (numberTransform != null)
+            {
+                var textMeshPro = numberTransform.GetComponent<TextMeshPro>();
+                if (textMeshPro != null)
+                {
+                    textMeshPro.sortingOrder = 9; // Lower sorting order
+                }
+            }
         }
 
         // Highlight the current selected object
         obj.spriteRenderer.color = Color.blue; // Darker blue
         obj.spriteRenderer.material.SetFloat("_Glossiness", 0.4f); // Optional: Add glossiness for effect
 
-        obj.spriteRenderer.sortingOrder = 10; // Set higher sorting order to bring it on top
+        obj.spriteRenderer.sortingOrder = 11; // Set higher sorting order to bring it on top
 
-        lastSelectedObject = obj; // Update the last selected object
-        obj.isDragging = true; // Enable dragging for the selected object
-
-        // Highlight the corresponding slider text
-        if (lastSelectedSliderText != null)
+        Transform currentNumberTransform = obj.objectTransform.Find("Number");
+        if (currentNumberTransform != null)
         {
-            lastSelectedSliderText.color = Color.white; // Revert previous slider text to black
-        }
-
-        int index = circularObjects.IndexOf(obj);
-        if (index >= 0 && index < sliderTexts.Count)
-        {
-            lastSelectedSliderText = sliderTexts[index];
-            if (lastSelectedSliderText != null)
+            var currentTextMeshPro = currentNumberTransform.GetComponent<TextMeshPro>();
+            if (currentTextMeshPro != null)
             {
-                lastSelectedSliderText.color = Color.blue; // Highlight the current slider text
-                Debug.Log($"Highlighting slider text for object {index + 1}");
+                currentTextMeshPro.sortingOrder = 12; // Higher sorting order to keep text on top
+                Debug.Log($"Highlighting slider text for object {circularObjects.IndexOf(obj) + 1}");
             }
             else
             {
-                Debug.LogWarning($"Slider text at index {index} is null");
+                Debug.LogWarning($"Slider text at index {circularObjects.IndexOf(obj)} is null");
             }
         }
-        else
-        {
-            Debug.LogWarning($"Index {index} is out of bounds for sliderTexts (count: {sliderTexts.Count})");
-        }
+
+        lastSelectedObject = obj; // Update the last selected object
+        obj.isDragging = true; // Enable dragging for the selected object
     }
-
-
 
     void SnapObjectsToClosestAngle()
     {
